@@ -4,6 +4,8 @@ import config from "./config";
 import cors from "cors";
 import { authRoutes } from "./modules/auth/auth.routes";
 import { userRoutes } from "./modules/user/user.routes";
+import { globalErrorHandler } from "./middlewares/globalErrorHandlar";
+import { notFound } from "./middlewares/notFound";
 const app: Application = express();
 
 app.use(
@@ -22,5 +24,7 @@ app.use("/api/auth", authRoutes);
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World");
 });
+app.use(notFound);
+app.use(globalErrorHandler);
 
 export default app;
