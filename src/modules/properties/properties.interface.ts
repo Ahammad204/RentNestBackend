@@ -15,6 +15,7 @@ export interface PropertyFilters {
   maxPrice?: string;
   propertyType?: string;
   categoryId?: string;
+  amenities?: string;
   page?: string;
   limit?: string;
 }

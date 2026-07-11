@@ -24,6 +24,10 @@ const getAllPropertiesFromDB = async (filters: PropertyFilters) => {
   if (filters.categoryId) {
     where.categoryId = filters.categoryId;
   }
+  if (filters.amenities) {
+    const amenitiesArray = filters.amenities.split(",");
+    where.amenities = { hasSome: amenitiesArray };
+  }
 
   const page = parseInt(filters.page || "1");
   const limit = parseInt(filters.limit || "10");
