@@ -53,6 +53,7 @@ const getMyProfileFromDB = async (userId: string) => {
     omit: {
       password: true,
     },
+    include: { profiles: true },
   });
 
   return user;
