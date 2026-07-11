@@ -18,7 +18,9 @@ const createPaymentSession = async (
   const rentalRequest = await prisma.rentalRequest.findUnique({
     where: { id: rentalRequestId },
     include: {
-      property: { select: { id: true, title: true, price: true, location: true } },
+      property: {
+        select: { id: true, title: true, price: true, location: true },
+      },
       payment: true,
     },
   });
@@ -146,7 +148,9 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
       }),
     ]);
 
-    return { message: "Payment completed, rental activated, property marked as rented" };
+    return {
+      message: "Payment completed, rental activated, property marked as rented",
+    };
   }
 
   return { message: `Unhandled event type: ${event.type}` };
@@ -176,7 +180,9 @@ const getMyPaymentsFromDB = async (userId: string, role: string) => {
       include: {
         rentalRequest: {
           include: {
-            property: { select: { id: true, title: true, location: true, price: true } },
+            property: {
+              select: { id: true, title: true, location: true, price: true },
+            },
           },
         },
       },
@@ -196,7 +202,9 @@ const getMyPaymentsFromDB = async (userId: string, role: string) => {
         rentalRequest: {
           include: {
             tenant: { select: { id: true, name: true, email: true } },
-            property: { select: { id: true, title: true, location: true, price: true } },
+            property: {
+              select: { id: true, title: true, location: true, price: true },
+            },
           },
         },
       },
@@ -211,7 +219,9 @@ const getMyPaymentsFromDB = async (userId: string, role: string) => {
         rentalRequest: {
           include: {
             tenant: { select: { id: true, name: true, email: true } },
-            property: { select: { id: true, title: true, location: true, price: true } },
+            property: {
+              select: { id: true, title: true, location: true, price: true },
+            },
           },
         },
       },
@@ -233,7 +243,14 @@ const getPaymentByIdFromDB = async (
     include: {
       rentalRequest: {
         include: {
-          tenant: { select: { id: true, name: true, email: true, phone: true } },
+          tenant: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              profiles: { select: { phone: true } },
+            },
+          },
           property: {
             include: {
               landlord: { select: { id: true, name: true, email: true } },
@@ -254,8 +271,13 @@ const getPaymentByIdFromDB = async (
     throw new Error("Forbidden. You can only view your own payments.");
   }
 
-  if (role === "LANDLORD" && payment.rentalRequest.property.landlordId !== userId) {
-    throw new Error("Forbidden. You can only view payments for your properties.");
+  if (
+    role === "LANDLORD" &&
+    payment.rentalRequest.property.landlordId !== userId
+  ) {
+    throw new Error(
+      "Forbidden. You can only view payments for your properties.",
+    );
   }
 
   return payment;

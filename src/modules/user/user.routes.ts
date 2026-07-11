@@ -15,4 +15,10 @@ router.get(
   userController.getMyProfile,
 );
 
+router.put(
+  "/me",
+  auth(Role.ADMIN, Role.LANDLORD, Role.TENANT),
+  userController.updateProfile,
+);
+
 export const userRoutes = router;

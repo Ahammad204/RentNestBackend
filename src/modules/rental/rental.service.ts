@@ -110,7 +110,14 @@ const getMyRentalRequestsFromDB = async (userId: string, role: string) => {
         property: { landlordId: userId },
       },
       include: {
-        tenant: { select: { id: true, name: true, email: true, phone: true } },
+        tenant: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            profiles: { select: { phone: true } },
+          },
+        },
         property: {
           select: { id: true, title: true, location: true, price: true },
         },
@@ -132,11 +139,23 @@ const getRentalRequestByIdFromDB = async (
   const rentalRequest = await prisma.rentalRequest.findUnique({
     where: { id: rentalId },
     include: {
-      tenant: { select: { id: true, name: true, email: true, phone: true } },
+      tenant: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          profiles: { select: { phone: true } },
+        },
+      },
       property: {
         include: {
           landlord: {
-            select: { id: true, name: true, email: true, phone: true },
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              profiles: { select: { phone: true } },
+            },
           },
         },
       },
@@ -169,7 +188,14 @@ const getAllLandlordRequestsFromDB = async (landlordId: string) => {
       property: { landlordId },
     },
     include: {
-      tenant: { select: { id: true, name: true, email: true, phone: true } },
+      tenant: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          profiles: { select: { phone: true } },
+        },
+      },
       property: {
         select: { id: true, title: true, location: true, price: true },
       },

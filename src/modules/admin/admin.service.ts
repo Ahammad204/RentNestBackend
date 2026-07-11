@@ -16,7 +16,10 @@ const getAllUsersFromDB = async (role?: string) => {
   return users;
 };
 
-const banUnbanUserInDB = async (userId: string, status: "ACTIVE" | "BANNED") => {
+const banUnbanUserInDB = async (
+  userId: string,
+  status: "ACTIVE" | "BANNED",
+) => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
   });
@@ -53,8 +56,21 @@ const getAllPropertiesFromDB = async () => {
 const getAllRentalsFromDB = async () => {
   const rentals = await prisma.rentalRequest.findMany({
     include: {
-      tenant: { select: { id: true, name: true, email: true, phone: true } },
-      property: { select: { id: true, title: true, location: true, price: true } },
+      tenant: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          profiles: {
+            select: {
+              phone: true,
+            },
+          },
+        },
+      },
+      property: {
+        select: { id: true, title: true, location: true, price: true },
+      },
       payment: true,
     },
     orderBy: { createdAt: "desc" },

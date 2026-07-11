@@ -5,7 +5,6 @@ model User {
     password  String
     role      Role       @default(TENANT)
     status    UserStatus @default(ACTIVE)
-    phone     String?
     createdAt DateTime   @default(now())
     updatedAt DateTime   @updatedAt
 

@@ -40,7 +40,12 @@ const getAllPropertiesFromDB = async (filters: PropertyFilters) => {
       take: limit,
       include: {
         landlord: {
-          select: { id: true, name: true, email: true, phone: true },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            profiles: { select: { phone: true } },
+          },
         },
         category: true,
       },
@@ -57,7 +62,12 @@ const getPropertyByIdFromDB = async (id: string) => {
     where: { id },
     include: {
       landlord: {
-        select: { id: true, name: true, email: true, phone: true },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          profiles: { select: { phone: true } },
+        },
       },
       category: true,
       reviews: {
