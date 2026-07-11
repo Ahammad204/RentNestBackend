@@ -1,4 +1,6 @@
+import httpStatus from "http-status";
 import { prisma } from "../../lib/prisma";
+import { AppError } from "../../utils/AppError";
 import {
   CreateRentalRequestPayload,
   RentalStatus,
@@ -18,7 +20,8 @@ const validateTransition = (current: RentalStatus, next: RentalStatus) => {
   const allowed = VALID_TRANSITIONS[current];
 
   if (!allowed.includes(next)) {
-    throw new Error(
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
       `Cannot transition rental request from ${current} to ${next}.`,
     );
   }
@@ -31,7 +34,7 @@ const createRentalRequestIntoDB = async (
   const { propertyId, moveInDate, message } = payload;
 
   if (!propertyId) {
-    throw new Error("Property ID is required");
+    throw new AppError(httpStatus.BAD_REQUEST, "Property ID is required");
   }
 
   const property = await prisma.property.findUnique({
@@ -39,15 +42,15 @@ const createRentalRequestIntoDB = async (
   });
 
   if (!property) {
-    throw new Error("Property not found");
+    throw new AppError(httpStatus.NOT_FOUND, "Property not found");
   }
 
   if (property.status !== "AVAILABLE") {
-    throw new Error("Property is not available for rent");
+    throw new AppError(httpStatus.BAD_REQUEST, "Property is not available for rent");
   }
 
   if (property.landlordId === tenantId) {
-    throw new Error("You cannot rent your own property");
+    throw new AppError(httpStatus.BAD_REQUEST, "You cannot rent your own property");
   }
 
   const existingRequest = await prisma.rentalRequest.findFirst({
@@ -59,7 +62,8 @@ const createRentalRequestIntoDB = async (
   });
 
   if (existingRequest) {
-    throw new Error(
+    throw new AppError(
+      httpStatus.CONFLICT,
       "You already have a pending or active rental request for this property",
     );
   }
@@ -128,7 +132,7 @@ const getMyRentalRequestsFromDB = async (userId: string, role: string) => {
     return requests;
   }
 
-  throw new Error("Invalid role");
+  throw new AppError(httpStatus.BAD_REQUEST, "Invalid role");
 };
 
 const getRentalRequestByIdFromDB = async (
@@ -164,17 +168,18 @@ const getRentalRequestByIdFromDB = async (
   });
 
   if (!rentalRequest) {
-    throw new Error("Rental request not found");
+    throw new AppError(httpStatus.NOT_FOUND, "Rental request not found");
   }
 
   if (role === "ADMIN") return rentalRequest;
 
   if (role === "TENANT" && rentalRequest.tenantId !== userId) {
-    throw new Error("Forbidden. You can only view your own rental requests.");
+    throw new AppError(httpStatus.FORBIDDEN, "Forbidden. You can only view your own rental requests.");
   }
 
   if (role === "LANDLORD" && rentalRequest.property.landlordId !== userId) {
-    throw new Error(
+    throw new AppError(
+      httpStatus.FORBIDDEN,
       "Forbidden. You can only view requests on your properties.",
     );
   }
@@ -220,11 +225,11 @@ const updateRentalRequestStatusIntoDB = async (
   });
 
   if (!rentalRequest) {
-    throw new Error("Rental request not found");
+    throw new AppError(httpStatus.NOT_FOUND, "Rental request not found");
   }
 
   if (rentalRequest.property.landlordId !== landlordId) {
-    throw new Error("Forbidden. You don't own this property.");
+    throw new AppError(httpStatus.FORBIDDEN, "Forbidden. You don't own this property.");
   }
 
   validateTransition(rentalRequest.status, status);

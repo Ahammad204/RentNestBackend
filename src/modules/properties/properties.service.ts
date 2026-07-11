@@ -1,5 +1,7 @@
 import { Prisma } from "../../../generated/prisma/client";
+import httpStatus from "http-status";
 import { prisma } from "../../lib/prisma";
+import { AppError } from "../../utils/AppError";
 import { verifyOwnership } from "../../utils/ownershipCheck";
 
 import { CreatePropertyPayload, PropertyFilters } from "./properties.interface";
@@ -90,11 +92,11 @@ const createPropertyIntoDB = async (
   const { title, price, location, propertyType } = payload;
 
   if (!title || !price || !location || !propertyType) {
-    throw new Error("Title, price, location, and propertyType are required");
+    throw new AppError(httpStatus.BAD_REQUEST, "Title, price, location, and propertyType are required");
   }
 
   if (typeof price !== "number" || price <= 0) {
-    throw new Error("Price must be a positive number");
+    throw new AppError(httpStatus.BAD_REQUEST, "Price must be a positive number");
   }
 
   const property = await prisma.property.create({
@@ -124,7 +126,7 @@ const updatePropertyIntoDB = async (
     payload.price !== undefined &&
     (typeof payload.price !== "number" || payload.price <= 0)
   ) {
-    throw new Error("Price must be a positive number");
+    throw new AppError(httpStatus.BAD_REQUEST, "Price must be a positive number");
   }
 
   const property = await prisma.property.update({

@@ -1,6 +1,8 @@
 import Stripe from "stripe";
+import httpStatus from "http-status";
 import { prisma } from "../../lib/prisma";
 import config from "../../config";
+import { AppError } from "../../utils/AppError";
 import { CreatePaymentPayload } from "./payment.interface";
 
 const stripe = new Stripe(config.stripe_secret_key);
@@ -12,7 +14,7 @@ const createPaymentSession = async (
   const { rentalRequestId, method } = payload;
 
   if (!rentalRequestId) {
-    throw new Error("Rental request ID is required");
+    throw new AppError(httpStatus.BAD_REQUEST, "Rental request ID is required");
   }
 
   const rentalRequest = await prisma.rentalRequest.findUnique({
@@ -26,19 +28,19 @@ const createPaymentSession = async (
   });
 
   if (!rentalRequest) {
-    throw new Error("Rental request not found");
+    throw new AppError(httpStatus.NOT_FOUND, "Rental request not found");
   }
 
   if (rentalRequest.tenantId !== tenantId) {
-    throw new Error("Forbidden. This is not your rental request.");
+    throw new AppError(httpStatus.FORBIDDEN, "Forbidden. This is not your rental request.");
   }
 
   if (rentalRequest.status !== "APPROVED") {
-    throw new Error("Payment can only be made for approved rental requests");
+    throw new AppError(httpStatus.BAD_REQUEST, "Payment can only be made for approved rental requests");
   }
 
   if (rentalRequest.payment) {
-    throw new Error("Payment already exists for this rental request");
+    throw new AppError(httpStatus.CONFLICT, "Payment already exists for this rental request");
   }
 
   const existingFailed = await prisma.payment.findFirst({
@@ -109,7 +111,7 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
       config.stripe_webhook_secret,
     );
   } catch (err: any) {
-    throw new Error(`Webhook signature verification failed: ${err.message}`);
+    throw new AppError(httpStatus.BAD_REQUEST, `Webhook signature verification failed: ${err.message}`);
   }
 
   if (event.type === "checkout.session.completed") {
@@ -123,7 +125,7 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
     });
 
     if (!payment) {
-      throw new Error("Payment record not found for this session");
+      throw new AppError(httpStatus.NOT_FOUND, "Payment record not found for this session");
     }
 
     if (payment.status === "COMPLETED") {
@@ -230,7 +232,7 @@ const getMyPaymentsFromDB = async (userId: string, role: string) => {
     return payments;
   }
 
-  throw new Error("Invalid role");
+  throw new AppError(httpStatus.BAD_REQUEST, "Invalid role");
 };
 
 const getPaymentByIdFromDB = async (
@@ -262,20 +264,21 @@ const getPaymentByIdFromDB = async (
   });
 
   if (!payment) {
-    throw new Error("Payment not found");
+    throw new AppError(httpStatus.NOT_FOUND, "Payment not found");
   }
 
   if (role === "ADMIN") return payment;
 
   if (role === "TENANT" && payment.rentalRequest.tenantId !== userId) {
-    throw new Error("Forbidden. You can only view your own payments.");
+    throw new AppError(httpStatus.FORBIDDEN, "Forbidden. You can only view your own payments.");
   }
 
   if (
     role === "LANDLORD" &&
     payment.rentalRequest.property.landlordId !== userId
   ) {
-    throw new Error(
+    throw new AppError(
+      httpStatus.FORBIDDEN,
       "Forbidden. You can only view payments for your properties.",
     );
   }

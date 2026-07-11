@@ -1,10 +1,11 @@
 import bcrypt from "bcryptjs";
 import { JwtPayload, SignOptions } from "jsonwebtoken";
-
 import { prisma } from "../../lib/prisma";
 import { ILoginUser } from "./auth.interface";
 import config from "../../config";
 import { jwtUtils } from "../../utils/jwt";
+import { AppError } from "../../utils/AppError";
+import httpStatus from "http-status";
 
 const loginUser = async (payload: ILoginUser) => {
   const { email, password } = payload;
@@ -14,13 +15,16 @@ const loginUser = async (payload: ILoginUser) => {
   });
 
   if (user.status === "BANNED") {
-    throw new Error("Your account has been banned. Please contact support.");
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Your account has been banned. Please contact support.",
+    );
   }
 
   const isPasswordMatched = await bcrypt.compare(password, user.password);
 
   if (!isPasswordMatched) {
-    throw new Error("Password is incorrect");
+    throw new AppError(httpStatus.UNAUTHORIZED, "Password is incorrect");
   }
 
   const jwtPayload = {
@@ -30,13 +34,11 @@ const loginUser = async (payload: ILoginUser) => {
     role: user.role,
   };
 
-
   const accessToken = jwtUtils.createToken(
     jwtPayload,
     config.jwt_access_secret,
     config.jwt_access_expires_in as SignOptions,
   );
-
 
   const refreshToken = jwtUtils.createToken(
     jwtPayload,
@@ -56,7 +58,7 @@ const refreshToken = async (refreshToken: string) => {
     config.jwt_refresh_secret,
   );
   if (!verifiedRefreshToken.success) {
-    throw new Error(verifiedRefreshToken.error);
+    throw new AppError(httpStatus.UNAUTHORIZED, verifiedRefreshToken.error!);
   }
   const { id } = verifiedRefreshToken.data as JwtPayload;
 
@@ -65,8 +67,8 @@ const refreshToken = async (refreshToken: string) => {
       id,
     },
   });
-   if (user.status === "BANNED") {
-    throw new Error("Your account has been banned. Please contact support.");
+  if (user.status === "BANNED") {
+    throw new AppError(httpStatus.FORBIDDEN, "Your account has been banned. Please contact support.");
   }
   const JwtPayload = {
     id,

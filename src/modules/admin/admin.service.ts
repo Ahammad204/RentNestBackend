@@ -1,4 +1,6 @@
+import httpStatus from "http-status";
 import { prisma } from "../../lib/prisma";
+import { AppError } from "../../utils/AppError";
 
 const getAllUsersFromDB = async (role?: string) => {
   const where: any = {};
@@ -25,11 +27,11 @@ const banUnbanUserInDB = async (
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
   if (user.role === "ADMIN") {
-    throw new Error("Cannot ban/unban an admin user");
+    throw new AppError(httpStatus.BAD_REQUEST, "Cannot ban/unban an admin user");
   }
 
   const updated = await prisma.user.update({
