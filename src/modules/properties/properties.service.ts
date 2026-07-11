@@ -1,10 +1,11 @@
+import { Prisma } from "../../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 import { verifyOwnership } from "../../utils/ownershipCheck";
 
 import { CreatePropertyPayload, PropertyFilters } from "./properties.interface";
 
 const getAllPropertiesFromDB = async (filters: PropertyFilters) => {
-  const where: any = {};
+  const where: Prisma.PropertyWhereInput = { status: "AVAILABLE" };
 
   if (filters.location) {
     where.location = { contains: filters.location, mode: "insensitive" };
