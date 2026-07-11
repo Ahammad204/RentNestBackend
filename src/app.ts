@@ -9,6 +9,7 @@ import { notFound } from "./middlewares/notFound";
 import { categoryRoutes } from "./modules/category/category.routes";
 import { propertiesRoutes } from "./modules/properties/properties.routes";
 import { rentalRoutes } from "./modules/rental/rental.routes";
+import { paymentRoutes } from "./modules/payment/payment.routes";
 const app: Application = express();
 
 app.use(
@@ -27,6 +28,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/properties", propertiesRoutes);
 app.use("/api/rentals", rentalRoutes);
+app.use("/api/payments", paymentRoutes);
+
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World");
 });
