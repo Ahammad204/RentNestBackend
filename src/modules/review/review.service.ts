@@ -37,7 +37,7 @@ const createReviewIntoDB = async (
     throw new Error("Forbidden. You can only review your own rental requests.");
   }
 
-  if (rentalRequest.status !== "COMPLETED") {
+  if (!["ACTIVE", "COMPLETED"].includes(rentalRequest.status)) {
     throw new Error("You can only review completed rental requests");
   }
 

@@ -10,6 +10,9 @@ import { categoryRoutes } from "./modules/category/category.routes";
 import { propertiesRoutes } from "./modules/properties/properties.routes";
 import { rentalRoutes } from "./modules/rental/rental.routes";
 import { paymentRoutes } from "./modules/payment/payment.routes";
+import { reviewRoutes } from "./modules/review/review.routes";
+import { adminRoutes } from "./modules/admin/admin.routes";
+import { paymentController } from "./modules/payment/payment.controller";
 const app: Application = express();
 
 app.use(
@@ -17,6 +20,12 @@ app.use(
     origin: config.app_url,
     credentials: true,
   }),
+);
+
+app.post(
+  "/api/payments/confirm",
+  express.raw({ type: "application/json" }),
+  paymentController.handleWebhook,
 );
 
 app.use(express.json());
@@ -29,6 +38,8 @@ app.use("/api/category", categoryRoutes);
 app.use("/api/properties", propertiesRoutes);
 app.use("/api/rentals", rentalRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World");
