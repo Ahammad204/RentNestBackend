@@ -2,7 +2,8 @@ export interface RegisterUserPayload {
   name: string;
   email: string;
   password: string;
-  phone?: string;   
+  phone?: string;
+  role?: "TENANT" | "LANDLORD" | "ADMIN";
 }
 
 export interface UpdateProfilePayload {
