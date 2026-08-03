@@ -90,6 +90,23 @@ const deleteProperty = catchAsync(
     });
   },
 );
+const getPropertiesByLandlord = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const filters = req.query;
+    const landlordId = req.user?.id as string;
+
+    const { properties, meta } =
+      await propertiesService.getPropertiesByLandlordFromDB(landlordId, filters);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Properties fetched successfully",
+      data: { properties },
+      meta,
+    });
+  },
+);
 
 export const propertiesController = {
   getAllProperties,
@@ -97,4 +114,5 @@ export const propertiesController = {
   createProperty,
   updateProperty,
   deleteProperty,
+  getPropertiesByLandlord,
 };

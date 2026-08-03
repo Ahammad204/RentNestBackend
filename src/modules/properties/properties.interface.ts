@@ -18,4 +18,5 @@ export interface PropertyFilters {
   amenities?: string;
   page?: string;
   limit?: string;
+  all?: string;
 }

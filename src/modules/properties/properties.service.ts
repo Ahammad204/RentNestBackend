@@ -153,10 +153,56 @@ const deletePropertyFromDB = async (userId: string, propertyId: string) => {
   return null;
 };
 
+const getPropertiesByLandlordFromDB = async (landlordId: string, filters: PropertyFilters) => {
+  const where: Prisma.PropertyWhereInput = { landlordId };
+
+  if (filters.location) {
+    where.location = { contains: filters.location, mode: "insensitive" };
+  }
+
+  if (filters.minPrice || filters.maxPrice) {
+    where.price = {};
+    if (filters.minPrice) where.price.gte = parseFloat(filters.minPrice);
+    if (filters.maxPrice) where.price.lte = parseFloat(filters.maxPrice);
+  }
+
+  if (filters.propertyType) {
+    where.propertyType = filters.propertyType;
+  }
+
+  if (filters.categoryId) {
+    where.categoryId = filters.categoryId;
+  }
+  if (filters.amenities) {
+    const amenitiesArray = filters.amenities.split(",");
+    where.amenities = { hasSome: amenitiesArray };
+  }
+
+  const page = parseInt(filters.page || "1");
+  const limit = parseInt(filters.limit || "10");
+  const skip = (page - 1) * limit;
+
+  const [properties, total] = await Promise.all([
+    prisma.property.findMany({
+      where,
+      skip,
+      take: limit,
+      include: {
+        category: true,
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.property.count({ where }),
+  ]);
+
+  return { properties, meta: { page, limit, total } };
+};
+
 export const propertiesService = {
   getAllPropertiesFromDB,
   getPropertyByIdFromDB,
   createPropertyIntoDB,
   updatePropertyIntoDB,
   deletePropertyFromDB,
+  getPropertiesByLandlordFromDB
 };
