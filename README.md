@@ -1,4 +1,4 @@
-# RentNest 🏠
+# Thikana 🏠
 
 > "Find & List Rental Properties with Ease"
 
@@ -81,7 +81,7 @@ A production-ready RESTful backend API for a rental property marketplace built w
 ```bash
 # 1. Clone the repository
 git clone https://github.com/Ahammad204/RentNestBackend.git
-cd RentNestBackend
+cd ThikanaBackend
 
 # 2. Install dependencies
 npm install
@@ -108,7 +108,7 @@ Create a `.env` file in the project root:
 
 ```env
 # Database
-DATABASE_URL="postgresql://user:password@host:5432/rentnest"
+DATABASE_URL="postgresql://user:password@host:5432/Thikana"
 
 # Server
 PORT=5000
@@ -288,7 +288,7 @@ STRIPE_WEBHOOK_SECRET=whsec_your-webhook-signing-secret
 ## 📁 Project Structure
 
 ```
-RentNestBackend/
+ThikanaBackend/
 ├── prisma/
 │   ├── migrations/              # Database migration files
 │   ├── schema/                  # Prisma schema (split by model)

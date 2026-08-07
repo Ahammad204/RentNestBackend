@@ -13,11 +13,11 @@ async function main() {
 
   // 1. Admin
   const admin = await prisma.user.upsert({
-    where: { email: "admin@rentnest.com" },
+    where: { email: "admin@Thikana.com" },
     update: {},
     create: {
       name: "Admin",
-      email: "admin@rentnest.com",
+      email: "admin@Thikana.com",
       password: hashedPassword,
       role: "ADMIN",
       profiles: { create: { phone: "01700000000" } },
@@ -44,11 +44,11 @@ async function main() {
   // 3. Sample Landlord
   const landlordPassword = await bcrypt.hash("landlord123", 10);
   const landlord = await prisma.user.upsert({
-    where: { email: "landlord@test.com" },
+    where: { email: "landlord@Thikana.com" },
     update: {},
     create: {
       name: "Test Landlord",
-      email: "landlord@test.com",
+      email: "landlord@Thikana.com",
       password: landlordPassword,
       role: "LANDLORD",
       profiles: { create: { phone: "01800000000" } },
@@ -58,7 +58,7 @@ async function main() {
   // 4. Sample Tenant
   const tenantPassword = await bcrypt.hash("tenant123", 10);
   await prisma.user.upsert({
-    where: { email: "tenant@test.com" },
+    where: { email: "tenant@Thikana.com" },
     update: {},
     create: {
       name: "Test Tenant",

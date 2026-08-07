@@ -13,6 +13,7 @@ import { paymentRoutes } from "./modules/payment/payment.routes";
 import { reviewRoutes } from "./modules/review/review.routes";
 import { adminRoutes } from "./modules/admin/admin.routes";
 import { paymentController } from "./modules/payment/payment.controller";
+import { statsRoutes } from "./modules/stats/stats.routes";
 const app: Application = express();
 
 app.use(
@@ -40,6 +41,7 @@ app.use("/api/rentals", rentalRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/stats", statsRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World");
