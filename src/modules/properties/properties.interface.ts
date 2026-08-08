@@ -19,4 +19,5 @@ export interface PropertyFilters {
   page?: string;
   limit?: string;
   all?: string;
+  sortBy?: string;
 }

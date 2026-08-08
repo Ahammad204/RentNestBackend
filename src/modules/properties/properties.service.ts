@@ -30,6 +30,22 @@ const getAllPropertiesFromDB = async (filters: PropertyFilters) => {
     const amenitiesArray = filters.amenities.split(",");
     where.amenities = { hasSome: amenitiesArray };
   }
+  // Determine sort order
+  const sortBy = filters.sortBy || "newest";
+  let orderBy: Prisma.PropertyOrderByWithRelationInput;
+  switch (sortBy) {
+    case "oldest":
+      orderBy = { createdAt: "asc" };
+      break;
+    case "price_asc":
+      orderBy = { price: "asc" };
+      break;
+    case "price_desc":
+      orderBy = { price: "desc" };
+      break;
+    default:
+      orderBy = { createdAt: "desc" };
+  }
 
   const page = parseInt(filters.page || "1");
   const limit = parseInt(filters.limit || "10");
@@ -51,7 +67,7 @@ const getAllPropertiesFromDB = async (filters: PropertyFilters) => {
         },
         category: true,
       },
-      orderBy: { createdAt: "desc" },
+      orderBy,
     }),
     prisma.property.count({ where }),
   ]);
@@ -113,11 +129,17 @@ const createPropertyIntoDB = async (
   const { title, price, location, propertyType } = payload;
 
   if (!title || !price || !location || !propertyType) {
-    throw new AppError(httpStatus.BAD_REQUEST, "Title, price, location, and propertyType are required");
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Title, price, location, and propertyType are required",
+    );
   }
 
   if (typeof price !== "number" || price <= 0) {
-    throw new AppError(httpStatus.BAD_REQUEST, "Price must be a positive number");
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Price must be a positive number",
+    );
   }
 
   const property = await prisma.property.create({
@@ -147,7 +169,10 @@ const updatePropertyIntoDB = async (
     payload.price !== undefined &&
     (typeof payload.price !== "number" || payload.price <= 0)
   ) {
-    throw new AppError(httpStatus.BAD_REQUEST, "Price must be a positive number");
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Price must be a positive number",
+    );
   }
 
   const property = await prisma.property.update({
@@ -174,7 +199,10 @@ const deletePropertyFromDB = async (userId: string, propertyId: string) => {
   return null;
 };
 
-const getPropertiesByLandlordFromDB = async (landlordId: string, filters: PropertyFilters) => {
+const getPropertiesByLandlordFromDB = async (
+  landlordId: string,
+  filters: PropertyFilters,
+) => {
   const where: Prisma.PropertyWhereInput = { landlordId };
 
   if (filters.location) {
@@ -225,5 +253,5 @@ export const propertiesService = {
   createPropertyIntoDB,
   updatePropertyIntoDB,
   deletePropertyFromDB,
-  getPropertiesByLandlordFromDB
+  getPropertiesByLandlordFromDB,
 };
