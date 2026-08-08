@@ -56,7 +56,28 @@ const getAllPropertiesFromDB = async (filters: PropertyFilters) => {
     prisma.property.count({ where }),
   ]);
 
-  return { properties, meta: { page, limit, total } };
+  // Fetch average ratings for all properties in this page
+  const propertyIds = properties.map((p) => p.id);
+  const avgRatings = await prisma.review.groupBy({
+    by: ["propertyId"],
+    where: { propertyId: { in: propertyIds } },
+    _avg: { rating: true },
+    _count: { rating: true },
+  });
+
+  // Merge average rating into each property
+  const propertiesWithRating = properties.map((p) => {
+    const ratingData = avgRatings.find((r) => r.propertyId === p.id);
+    return {
+      ...p,
+      averageRating: ratingData
+        ? Math.round((ratingData._avg.rating ?? 0) * 10) / 10
+        : null,
+      reviewCount: ratingData ? ratingData._count.rating : 0,
+    };
+  });
+
+  return { properties: propertiesWithRating, meta: { page, limit, total } };
 };
 
 const getPropertyByIdFromDB = async (id: string) => {
