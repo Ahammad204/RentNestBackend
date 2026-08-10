@@ -6,14 +6,14 @@ import { authRoutes } from "./modules/auth/auth.routes";
 import { userRoutes } from "./modules/user/user.routes";
 import { globalErrorHandler } from "./middlewares/globalErrorHandlar";
 import { notFound } from "./middlewares/notFound";
-import { categoryRoutes } from "./modules/category/category.routes";
 import { propertiesRoutes } from "./modules/properties/properties.routes";
 import { rentalRoutes } from "./modules/rental/rental.routes";
 import { paymentRoutes } from "./modules/payment/payment.routes";
 import { reviewRoutes } from "./modules/review/review.routes";
 import { adminRoutes } from "./modules/admin/admin.routes";
 import { paymentController } from "./modules/payment/payment.controller";
-import { statsRoutes } from "./modules/stats/stats.routes";
+import categoryRoutes from "./modules/category/category.routes";
+import statsRoutes from "./modules/stats/stats.routes";
 const app: Application = express();
 
 app.use(

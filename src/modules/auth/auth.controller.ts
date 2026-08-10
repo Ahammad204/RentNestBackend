@@ -33,6 +33,35 @@ const loginUser = catchAsync(
   },
 );
 
+const googleLogin = catchAsync(
+  async (req: Request, res: Response) => {
+    const { credential } = req.body;
+
+    const { accessToken, refreshToken } = await authService.googleLogin(credential);
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "none",
+      maxAge: 1000 * 60 * 60 * 24,
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "none",
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    });
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Google login successful",
+      data: { accessToken, refreshToken },
+    });
+  },
+);
+
 const refreshToken = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const refreshToken = req.cookies.refreshToken;
@@ -49,14 +78,13 @@ const refreshToken = catchAsync(
       success: true,
       statusCode: httpStatus.OK,
       message: "Token Refreshed Successfully",
-      data: {
-        accessToken,
-      },
+      data: { accessToken },
     });
   },
 );
 
 export const authController = {
   loginUser,
+  googleLogin,
   refreshToken,
 };

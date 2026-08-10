@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
+
 import httpStatus from "http-status";
+import { statsService } from "./stats.service";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
-import { statsService } from "./stats.service";
 
 const getPublicStats = catchAsync(async (req: Request, res: Response) => {
   const stats = await statsService.getPublicStats();
-
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -15,4 +15,17 @@ const getPublicStats = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const statsController = { getPublicStats };
+const getAdminStats = catchAsync(async (req: Request, res: Response) => {
+  const stats = await statsService.getAdminStats();
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Admin stats fetched successfully",
+    data: stats,
+  });
+});
+
+export const statsController = {
+  getPublicStats,
+  getAdminStats,
+};
